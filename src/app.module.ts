@@ -8,14 +8,12 @@ import { TagModule } from './modules/tags/tag.module';
 import { SizeModule } from './modules/size/size.module';
 @Module({
   imports: [
-    ProductModules,
-    MongooseModule.forRoot(
-      'mongodb+srv://product:wOTnFBUeupvciNTc@product.n4h40wo.mongodb.net/?retryWrites=true&w=majority&appName=product',
-    ),
     ConfigModule.forRoot({
-      isGlobal: true,
       envFilePath: '.env',
+      isGlobal: true,
     }),
+    ProductModules,
+    MongooseModule.forRoot(process.env.MONGODB_URL),
     TagModule,
     SizeModule,
   ],

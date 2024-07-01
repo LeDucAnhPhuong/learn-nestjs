@@ -16,7 +16,7 @@ export class ProductService {
     @InjectModel(Size.name)
     private readonly sizeModel: Model<Size>,
   ) {}
-  async getProduct({ page, limit }: { page: number; limit: number }) {
+  async getProduct({ page = 1, limit = 10 }: { page: number; limit: number }) {
     const data = await this.productModel
       .find()
       .limit(limit)

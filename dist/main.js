@@ -230,8 +230,8 @@ const app_controller_1 = __webpack_require__(7);
 const app_service_1 = __webpack_require__(8);
 const product_module_1 = __webpack_require__(9);
 const mongoose_1 = __webpack_require__(12);
-const config_1 = __webpack_require__(19);
-const tag_module_1 = __webpack_require__(20);
+const config_1 = __webpack_require__(21);
+const tag_module_1 = __webpack_require__(22);
 const size_module_1 = __webpack_require__(26);
 let AppModule = class AppModule {
 };
@@ -239,12 +239,12 @@ exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            product_module_1.ProductModules,
-            mongoose_1.MongooseModule.forRoot('mongodb+srv://product:wOTnFBUeupvciNTc@product.n4h40wo.mongodb.net/?retryWrites=true&w=majority&appName=product'),
             config_1.ConfigModule.forRoot({
-                isGlobal: true,
                 envFilePath: '.env',
+                isGlobal: true,
             }),
+            product_module_1.ProductModules,
+            mongoose_1.MongooseModule.forRoot(process.env.MONGODB_URL),
             tag_module_1.TagModule,
             size_module_1.SizeModule,
         ],
@@ -357,10 +357,10 @@ exports.ProductModules = void 0;
 const common_1 = __webpack_require__(6);
 const product_service_1 = __webpack_require__(10);
 const product_schema_1 = __webpack_require__(11);
-const product_controller_1 = __webpack_require__(14);
+const product_controller_1 = __webpack_require__(17);
 const mongoose_1 = __webpack_require__(12);
-const tag_schema_1 = __webpack_require__(22);
-const size_schema_1 = __webpack_require__(28);
+const tag_schema_1 = __webpack_require__(14);
+const size_schema_1 = __webpack_require__(15);
 let ProductModules = class ProductModules {
 };
 exports.ProductModules = ProductModules;
@@ -402,15 +402,15 @@ const common_1 = __webpack_require__(6);
 const product_schema_1 = __webpack_require__(11);
 const mongoose_1 = __webpack_require__(13);
 const mongoose_2 = __webpack_require__(12);
-const tag_schema_1 = __webpack_require__(22);
-const size_schema_1 = __webpack_require__(28);
+const tag_schema_1 = __webpack_require__(14);
+const size_schema_1 = __webpack_require__(15);
 let ProductService = class ProductService {
     constructor(productModel, tagModel, sizeModel) {
         this.productModel = productModel;
         this.tagModel = tagModel;
         this.sizeModel = sizeModel;
     }
-    async getProduct({ page, limit }) {
+    async getProduct({ page = 1, limit = 10 }) {
         const data = await this.productModel
             .find()
             .limit(limit)
@@ -528,6 +528,86 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.tagSchema = exports.Tag = void 0;
+const mongoose_1 = __webpack_require__(12);
+let Tag = class Tag {
+};
+exports.Tag = Tag;
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], Tag.prototype, "name", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], Tag.prototype, "label", void 0);
+exports.Tag = Tag = __decorate([
+    (0, mongoose_1.Schema)({ _id: true })
+], Tag);
+exports.tagSchema = mongoose_1.SchemaFactory.createForClass(Tag);
+
+
+/***/ }),
+/* 15 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.sizeSchema = exports.Size = void 0;
+const mongoose_1 = __webpack_require__(12);
+const class_validator_1 = __webpack_require__(16);
+let Size = class Size {
+};
+exports.Size = Size;
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], Size.prototype, "name", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], Size.prototype, "label", void 0);
+exports.Size = Size = __decorate([
+    (0, mongoose_1.Schema)({ _id: true })
+], Size);
+exports.sizeSchema = mongoose_1.SchemaFactory.createForClass(Size);
+
+
+/***/ }),
+/* 16 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("class-validator");
+
+/***/ }),
+/* 17 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
@@ -536,9 +616,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProductController = void 0;
 const product_service_1 = __webpack_require__(10);
 const common_1 = __webpack_require__(6);
-const products_dto_1 = __webpack_require__(15);
-const globalClass_1 = __webpack_require__(17);
-const globalEnum_1 = __webpack_require__(18);
+const products_dto_1 = __webpack_require__(18);
+const globalClass_1 = __webpack_require__(19);
+const globalEnum_1 = __webpack_require__(20);
 let ProductController = class ProductController {
     constructor(productService) {
         this.productService = productService;
@@ -616,7 +696,7 @@ exports.ProductController = ProductController = __decorate([
 
 
 /***/ }),
-/* 15 */
+/* 18 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -657,14 +737,7 @@ __decorate([
 
 
 /***/ }),
-/* 16 */
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("class-validator");
-
-/***/ }),
-/* 17 */
+/* 19 */
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -683,7 +756,7 @@ exports.ResponseData = ResponseData;
 
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -705,14 +778,14 @@ var HTTPSMessage;
 
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ ((module) => {
 
 "use strict";
 module.exports = require("@nestjs/config");
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -726,10 +799,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TagModule = void 0;
 const common_1 = __webpack_require__(6);
-const tag_service_1 = __webpack_require__(21);
+const tag_service_1 = __webpack_require__(23);
 const mongoose_1 = __webpack_require__(12);
-const tag_schema_1 = __webpack_require__(22);
-const tag_controller_1 = __webpack_require__(23);
+const tag_schema_1 = __webpack_require__(14);
+const tag_controller_1 = __webpack_require__(24);
 let TagModule = class TagModule {
 };
 exports.TagModule = TagModule;
@@ -743,7 +816,7 @@ exports.TagModule = TagModule = __decorate([
 
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -766,7 +839,7 @@ exports.TagService = void 0;
 const common_1 = __webpack_require__(6);
 const mongoose_1 = __webpack_require__(12);
 const mongoose_2 = __webpack_require__(13);
-const tag_schema_1 = __webpack_require__(22);
+const tag_schema_1 = __webpack_require__(14);
 let TagService = class TagService {
     constructor(tagModel) {
         this.tagModel = tagModel;
@@ -795,42 +868,7 @@ exports.TagService = TagService = __decorate([
 
 
 /***/ }),
-/* 22 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.tagSchema = exports.Tag = void 0;
-const mongoose_1 = __webpack_require__(12);
-let Tag = class Tag {
-};
-exports.Tag = Tag;
-__decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", String)
-], Tag.prototype, "name", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", String)
-], Tag.prototype, "label", void 0);
-exports.Tag = Tag = __decorate([
-    (0, mongoose_1.Schema)({ _id: true })
-], Tag);
-exports.tagSchema = mongoose_1.SchemaFactory.createForClass(Tag);
-
-
-/***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -851,10 +889,10 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TagController = void 0;
 const common_1 = __webpack_require__(6);
-const tag_service_1 = __webpack_require__(21);
-const tag_dto_1 = __webpack_require__(24);
-const globalClass_1 = __webpack_require__(17);
-const globalEnum_1 = __webpack_require__(18);
+const tag_service_1 = __webpack_require__(23);
+const tag_dto_1 = __webpack_require__(25);
+const globalClass_1 = __webpack_require__(19);
+const globalEnum_1 = __webpack_require__(20);
 let TagController = class TagController {
     constructor(tagService) {
         this.tagService = tagService;
@@ -916,7 +954,7 @@ exports.TagController = TagController = __decorate([
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -950,7 +988,92 @@ __decorate([
 
 
 /***/ }),
-/* 25 */
+/* 26 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SizeModule = void 0;
+const common_1 = __webpack_require__(6);
+const size_service_1 = __webpack_require__(27);
+const mongoose_1 = __webpack_require__(12);
+const size_schema_1 = __webpack_require__(15);
+const size_controller_1 = __webpack_require__(28);
+let SizeModule = class SizeModule {
+};
+exports.SizeModule = SizeModule;
+exports.SizeModule = SizeModule = __decorate([
+    (0, common_1.Module)({
+        imports: [
+            mongoose_1.MongooseModule.forFeature([{ name: size_schema_1.Size.name, schema: size_schema_1.sizeSchema }]),
+        ],
+        providers: [size_service_1.SizeService],
+        controllers: [size_controller_1.SizeController],
+    })
+], SizeModule);
+
+
+/***/ }),
+/* 27 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SizeService = void 0;
+const common_1 = __webpack_require__(6);
+const mongoose_1 = __webpack_require__(12);
+const size_schema_1 = __webpack_require__(15);
+const mongoose_2 = __webpack_require__(13);
+let SizeService = class SizeService {
+    constructor(sizeModel) {
+        this.sizeModel = sizeModel;
+    }
+    async getAllSizes() {
+        const sizes = await this.sizeModel.find();
+        return sizes;
+    }
+    createNewSize(data) {
+        const newSize = new this.sizeModel(data);
+        return newSize.save();
+    }
+    updateSize(id, data) {
+        return this.sizeModel.findByIdAndUpdate(id, data);
+    }
+    deleteSize(id) {
+        return this.sizeModel.findByIdAndDelete(id);
+    }
+};
+exports.SizeService = SizeService;
+exports.SizeService = SizeService = __decorate([
+    (0, common_1.Injectable)(),
+    __param(0, (0, mongoose_1.InjectModel)(size_schema_1.Size.name)),
+    __metadata("design:paramtypes", [typeof (_a = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _a : Object])
+], SizeService);
+
+
+/***/ }),
+/* 28 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -973,8 +1096,8 @@ exports.SizeController = void 0;
 const common_1 = __webpack_require__(6);
 const size_service_1 = __webpack_require__(27);
 const size_dto_1 = __webpack_require__(29);
-const globalClass_1 = __webpack_require__(17);
-const globalEnum_1 = __webpack_require__(18);
+const globalClass_1 = __webpack_require__(19);
+const globalEnum_1 = __webpack_require__(20);
 let SizeController = class SizeController {
     constructor(sizeService) {
         this.sizeService = sizeService;
@@ -1033,129 +1156,6 @@ exports.SizeController = SizeController = __decorate([
     (0, common_1.Controller)('sizes'),
     __metadata("design:paramtypes", [typeof (_a = typeof size_service_1.SizeService !== "undefined" && size_service_1.SizeService) === "function" ? _a : Object])
 ], SizeController);
-
-
-/***/ }),
-/* 26 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.SizeModule = void 0;
-const common_1 = __webpack_require__(6);
-const size_service_1 = __webpack_require__(27);
-const mongoose_1 = __webpack_require__(12);
-const size_schema_1 = __webpack_require__(28);
-const size_controller_1 = __webpack_require__(25);
-let SizeModule = class SizeModule {
-};
-exports.SizeModule = SizeModule;
-exports.SizeModule = SizeModule = __decorate([
-    (0, common_1.Module)({
-        imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: size_schema_1.Size.name, schema: size_schema_1.sizeSchema }]),
-        ],
-        providers: [size_service_1.SizeService],
-        controllers: [size_controller_1.SizeController],
-    })
-], SizeModule);
-
-
-/***/ }),
-/* 27 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.SizeService = void 0;
-const common_1 = __webpack_require__(6);
-const mongoose_1 = __webpack_require__(12);
-const size_schema_1 = __webpack_require__(28);
-const mongoose_2 = __webpack_require__(13);
-let SizeService = class SizeService {
-    constructor(sizeModel) {
-        this.sizeModel = sizeModel;
-    }
-    async getAllSizes() {
-        const sizes = await this.sizeModel.find();
-        return sizes;
-    }
-    createNewSize(data) {
-        const newSize = new this.sizeModel(data);
-        return newSize.save();
-    }
-    updateSize(id, data) {
-        return this.sizeModel.findByIdAndUpdate(id, data);
-    }
-    deleteSize(id) {
-        return this.sizeModel.findByIdAndDelete(id);
-    }
-};
-exports.SizeService = SizeService;
-exports.SizeService = SizeService = __decorate([
-    (0, common_1.Injectable)(),
-    __param(0, (0, mongoose_1.InjectModel)(size_schema_1.Size.name)),
-    __metadata("design:paramtypes", [typeof (_a = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _a : Object])
-], SizeService);
-
-
-/***/ }),
-/* 28 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.sizeSchema = exports.Size = void 0;
-const mongoose_1 = __webpack_require__(12);
-const class_validator_1 = __webpack_require__(16);
-let Size = class Size {
-};
-exports.Size = Size;
-__decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], Size.prototype, "name", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], Size.prototype, "label", void 0);
-exports.Size = Size = __decorate([
-    (0, mongoose_1.Schema)({ _id: true })
-], Size);
-exports.sizeSchema = mongoose_1.SchemaFactory.createForClass(Size);
 
 
 /***/ }),
@@ -1254,7 +1254,7 @@ __decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("fa90e8721897a893a030")
+/******/ 		__webpack_require__.h = () => ("f14659099b814d89dde7")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
