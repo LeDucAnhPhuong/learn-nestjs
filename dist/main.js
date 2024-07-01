@@ -228,12 +228,26 @@ exports.AppModule = void 0;
 const common_1 = __webpack_require__(6);
 const app_controller_1 = __webpack_require__(7);
 const app_service_1 = __webpack_require__(8);
+const product_module_1 = __webpack_require__(9);
+const mongoose_1 = __webpack_require__(12);
+const config_1 = __webpack_require__(19);
+const tag_module_1 = __webpack_require__(20);
+const size_module_1 = __webpack_require__(26);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [],
+        imports: [
+            product_module_1.ProductModules,
+            mongoose_1.MongooseModule.forRoot('mongodb+srv://product:wOTnFBUeupvciNTc@product.n4h40wo.mongodb.net/?retryWrites=true&w=majority&appName=product'),
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+                envFilePath: '.env',
+            }),
+            tag_module_1.TagModule,
+            size_module_1.SizeModule,
+        ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
     })
@@ -274,6 +288,9 @@ let AppController = class AppController {
     getHello() {
         return this.appService.getHello();
     }
+    postHello() {
+        return this.appService.postHello();
+    }
 };
 exports.AppController = AppController;
 __decorate([
@@ -282,6 +299,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
 ], AppController.prototype, "getHello", null);
+__decorate([
+    (0, common_1.Post)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", String)
+], AppController.prototype, "postHello", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [typeof (_a = typeof app_service_1.AppService !== "undefined" && app_service_1.AppService) === "function" ? _a : Object])
@@ -305,13 +328,868 @@ exports.AppService = void 0;
 const common_1 = __webpack_require__(6);
 let AppService = class AppService {
     getHello() {
-        return 'Hello World!';
+        return 'Hello 111!';
+    }
+    postHello() {
+        return 'Post Hello!';
     }
 };
 exports.AppService = AppService;
 exports.AppService = AppService = __decorate([
     (0, common_1.Injectable)()
 ], AppService);
+
+
+/***/ }),
+/* 9 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ProductModules = void 0;
+const common_1 = __webpack_require__(6);
+const product_service_1 = __webpack_require__(10);
+const product_schema_1 = __webpack_require__(11);
+const product_controller_1 = __webpack_require__(14);
+const mongoose_1 = __webpack_require__(12);
+const tag_schema_1 = __webpack_require__(22);
+const size_schema_1 = __webpack_require__(28);
+let ProductModules = class ProductModules {
+};
+exports.ProductModules = ProductModules;
+exports.ProductModules = ProductModules = __decorate([
+    (0, common_1.Module)({
+        imports: [
+            mongoose_1.MongooseModule.forFeature([{ name: product_schema_1.Product.name, schema: product_schema_1.productSchema }]),
+            mongoose_1.MongooseModule.forFeature([{ name: tag_schema_1.Tag.name, schema: tag_schema_1.tagSchema }]),
+            mongoose_1.MongooseModule.forFeature([{ name: size_schema_1.Size.name, schema: size_schema_1.sizeSchema }]),
+        ],
+        providers: [product_service_1.ProductService],
+        controllers: [product_controller_1.ProductController],
+    })
+], ProductModules);
+
+
+/***/ }),
+/* 10 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ProductService = void 0;
+const common_1 = __webpack_require__(6);
+const product_schema_1 = __webpack_require__(11);
+const mongoose_1 = __webpack_require__(13);
+const mongoose_2 = __webpack_require__(12);
+const tag_schema_1 = __webpack_require__(22);
+const size_schema_1 = __webpack_require__(28);
+let ProductService = class ProductService {
+    constructor(productModel, tagModel, sizeModel) {
+        this.productModel = productModel;
+        this.tagModel = tagModel;
+        this.sizeModel = sizeModel;
+    }
+    async getProduct({ page, limit }) {
+        const data = await this.productModel
+            .find()
+            .limit(limit)
+            .skip((page - 1) * limit);
+        const total = await this.productModel.countDocuments();
+        return {
+            data,
+            page: {
+                currentPage: Number(page),
+                totalPage: Math.ceil(total / limit),
+            },
+        };
+    }
+    getProductById(_id) {
+        return this.productModel.findById(_id);
+    }
+    async postProduct({ sizesID, tagID, ...ProductDto }) {
+        const tag = (await this.tagModel.findById(tagID)) ?? 'undefined';
+        const sizes = await this.sizeModel.find({ _id: { $in: sizesID } });
+        const newProduct = new this.productModel({
+            sizes: sizes ?? [],
+            tag: tag,
+            ...ProductDto,
+        });
+        return newProduct.save();
+    }
+    updateProduct(ProductDto, id) {
+        return this.productModel.findByIdAndUpdate(id, ProductDto);
+    }
+    deleteProduct(id) {
+        return this.productModel.findByIdAndDelete(id);
+    }
+};
+exports.ProductService = ProductService;
+exports.ProductService = ProductService = __decorate([
+    (0, common_1.Injectable)(),
+    __param(0, (0, mongoose_2.InjectModel)(product_schema_1.Product.name)),
+    __param(1, (0, mongoose_2.InjectModel)(tag_schema_1.Tag.name)),
+    __param(2, (0, mongoose_2.InjectModel)(size_schema_1.Size.name)),
+    __metadata("design:paramtypes", [typeof (_a = typeof mongoose_1.Model !== "undefined" && mongoose_1.Model) === "function" ? _a : Object, typeof (_b = typeof mongoose_1.Model !== "undefined" && mongoose_1.Model) === "function" ? _b : Object, typeof (_c = typeof mongoose_1.Model !== "undefined" && mongoose_1.Model) === "function" ? _c : Object])
+], ProductService);
+
+
+/***/ }),
+/* 11 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.productSchema = exports.Product = void 0;
+const mongoose_1 = __webpack_require__(12);
+const mongoose_2 = __webpack_require__(13);
+let Product = class Product {
+};
+exports.Product = Product;
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], Product.prototype, "name", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", Number)
+], Product.prototype, "price", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.Mixed, required: true }),
+    __metadata("design:type", Object)
+], Product.prototype, "tag", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", Array)
+], Product.prototype, "sizes", void 0);
+exports.Product = Product = __decorate([
+    (0, mongoose_1.Schema)({ timestamps: true, _id: true })
+], Product);
+exports.productSchema = mongoose_1.SchemaFactory.createForClass(Product);
+
+
+/***/ }),
+/* 12 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("@nestjs/mongoose");
+
+/***/ }),
+/* 13 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("mongoose");
+
+/***/ }),
+/* 14 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ProductController = void 0;
+const product_service_1 = __webpack_require__(10);
+const common_1 = __webpack_require__(6);
+const products_dto_1 = __webpack_require__(15);
+const globalClass_1 = __webpack_require__(17);
+const globalEnum_1 = __webpack_require__(18);
+let ProductController = class ProductController {
+    constructor(productService) {
+        this.productService = productService;
+    }
+    async getProduct(query) {
+        const product = await this.productService.getProduct(query);
+        return new globalClass_1.ResponseData(product, 'Get all product success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+    getProductById(id) {
+        const selectedProduct = this.productService.getProductById(id);
+        if (!selectedProduct)
+            throw new common_1.HttpException('PRODUCT NOT FOUND', 404);
+        return new globalClass_1.ResponseData(this.productService.getProductById(id), 'Get product success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+    async postProduct(productDto) {
+        const newProduct = await this.productService.postProduct(productDto);
+        if (!newProduct)
+            return new globalClass_1.ResponseData(null, 'Tag not found', globalEnum_1.HTTPSMessage.NOT_FOUND);
+        return new globalClass_1.ResponseData(newProduct, 'Created product success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+    async updateProductById(productDto, id) {
+        const updatedProduct = await this.productService.updateProduct(productDto, id);
+        if (!updatedProduct)
+            throw new common_1.HttpException('PRODUCT NOT FOUND', 404);
+        return new globalClass_1.ResponseData(null, 'Updated product success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+    async deleteProduct(id) {
+        const deletedProduct = await this.productService.deleteProduct(id);
+        if (!deletedProduct)
+            throw new common_1.HttpException('PRODUCT NOT FOUND', 404);
+        return new globalClass_1.ResponseData(null, 'Deleted product success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+};
+exports.ProductController = ProductController;
+__decorate([
+    (0, common_1.Get)('/get-all'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ProductController.prototype, "getProduct", null);
+__decorate([
+    (0, common_1.Get)('/get-product/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ProductController.prototype, "getProductById", null);
+__decorate([
+    (0, common_1.Post)('/post-new-product'),
+    __param(0, (0, common_1.Body)(new common_1.ValidationPipe())),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_b = typeof products_dto_1.ProductDto !== "undefined" && products_dto_1.ProductDto) === "function" ? _b : Object]),
+    __metadata("design:returntype", Promise)
+], ProductController.prototype, "postProduct", null);
+__decorate([
+    (0, common_1.Put)('/update-product/:id'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], ProductController.prototype, "updateProductById", null);
+__decorate([
+    (0, common_1.Delete)('/delete-product/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ProductController.prototype, "deleteProduct", null);
+exports.ProductController = ProductController = __decorate([
+    (0, common_1.Controller)('products'),
+    __metadata("design:paramtypes", [typeof (_a = typeof product_service_1.ProductService !== "undefined" && product_service_1.ProductService) === "function" ? _a : Object])
+], ProductController);
+
+
+/***/ }),
+/* 15 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ProductDto = void 0;
+const mongoose_1 = __webpack_require__(12);
+const class_validator_1 = __webpack_require__(16);
+class ProductDto {
+}
+exports.ProductDto = ProductDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], ProductDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], ProductDto.prototype, "price", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, mongoose_1.Prop)({ type: String, required: true }),
+    __metadata("design:type", String)
+], ProductDto.prototype, "tagID", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", Array)
+], ProductDto.prototype, "sizesID", void 0);
+
+
+/***/ }),
+/* 16 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("class-validator");
+
+/***/ }),
+/* 17 */
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ResponseData = void 0;
+class ResponseData {
+    constructor(data, message, status) {
+        this.data = data;
+        this.status = status;
+        this.message = message;
+        return this;
+    }
+}
+exports.ResponseData = ResponseData;
+
+
+/***/ }),
+/* 18 */
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.HTTPSMessage = exports.HTTPStatus = void 0;
+var HTTPStatus;
+(function (HTTPStatus) {
+    HTTPStatus[HTTPStatus["ERROR"] = 403] = "ERROR";
+    HTTPStatus[HTTPStatus["SUCCESS"] = 200] = "SUCCESS";
+    HTTPStatus[HTTPStatus["NOT_FOUND"] = 404] = "NOT_FOUND";
+})(HTTPStatus || (exports.HTTPStatus = HTTPStatus = {}));
+var HTTPSMessage;
+(function (HTTPSMessage) {
+    HTTPSMessage["ERROR"] = "Server Internal Error";
+    HTTPSMessage["SUCCESS"] = "Server Response Success";
+    HTTPSMessage["NOT_FOUND"] = "Data Not Found";
+})(HTTPSMessage || (exports.HTTPSMessage = HTTPSMessage = {}));
+
+
+/***/ }),
+/* 19 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("@nestjs/config");
+
+/***/ }),
+/* 20 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TagModule = void 0;
+const common_1 = __webpack_require__(6);
+const tag_service_1 = __webpack_require__(21);
+const mongoose_1 = __webpack_require__(12);
+const tag_schema_1 = __webpack_require__(22);
+const tag_controller_1 = __webpack_require__(23);
+let TagModule = class TagModule {
+};
+exports.TagModule = TagModule;
+exports.TagModule = TagModule = __decorate([
+    (0, common_1.Module)({
+        providers: [tag_service_1.TagService],
+        imports: [mongoose_1.MongooseModule.forFeature([{ name: tag_schema_1.Tag.name, schema: tag_schema_1.tagSchema }])],
+        controllers: [tag_controller_1.TagController],
+    })
+], TagModule);
+
+
+/***/ }),
+/* 21 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TagService = void 0;
+const common_1 = __webpack_require__(6);
+const mongoose_1 = __webpack_require__(12);
+const mongoose_2 = __webpack_require__(13);
+const tag_schema_1 = __webpack_require__(22);
+let TagService = class TagService {
+    constructor(tagModel) {
+        this.tagModel = tagModel;
+    }
+    async getTags() {
+        const tags = await this.tagModel.find();
+        return tags;
+    }
+    postTag(data) {
+        const tag = new this.tagModel(data);
+        return tag.save();
+    }
+    updateTag(id, data) {
+        return this.tagModel.findByIdAndUpdate(id, data);
+    }
+    deleteTag(data) {
+        return this.tagModel.findByIdAndDelete(data);
+    }
+};
+exports.TagService = TagService;
+exports.TagService = TagService = __decorate([
+    (0, common_1.Injectable)(),
+    __param(0, (0, mongoose_1.InjectModel)(tag_schema_1.Tag.name)),
+    __metadata("design:paramtypes", [typeof (_a = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _a : Object])
+], TagService);
+
+
+/***/ }),
+/* 22 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.tagSchema = exports.Tag = void 0;
+const mongoose_1 = __webpack_require__(12);
+let Tag = class Tag {
+};
+exports.Tag = Tag;
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], Tag.prototype, "name", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], Tag.prototype, "label", void 0);
+exports.Tag = Tag = __decorate([
+    (0, mongoose_1.Schema)({ _id: true })
+], Tag);
+exports.tagSchema = mongoose_1.SchemaFactory.createForClass(Tag);
+
+
+/***/ }),
+/* 23 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TagController = void 0;
+const common_1 = __webpack_require__(6);
+const tag_service_1 = __webpack_require__(21);
+const tag_dto_1 = __webpack_require__(24);
+const globalClass_1 = __webpack_require__(17);
+const globalEnum_1 = __webpack_require__(18);
+let TagController = class TagController {
+    constructor(tagService) {
+        this.tagService = tagService;
+    }
+    async getTags() {
+        const tags = await this.tagService.getTags();
+        return new globalClass_1.ResponseData(tags, 'Get all tags success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+    async postTag(data) {
+        const tag = await this.tagService.postTag(data);
+        return new globalClass_1.ResponseData(tag, 'Create tag success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+    async updateTag(id, data) {
+        const tag = await this.tagService.updateTag(id, data);
+        if (!tag)
+            return new globalClass_1.ResponseData(null, 'Tag not found', globalEnum_1.HTTPSMessage.NOT_FOUND);
+        return new globalClass_1.ResponseData(tag, 'Updated tag success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+    async deleteTag(id) {
+        const tag = await this.tagService.deleteTag(id);
+        if (!tag)
+            return new globalClass_1.ResponseData(null, 'Tag not found', globalEnum_1.HTTPSMessage.NOT_FOUND);
+        return new globalClass_1.ResponseData(tag, 'Deleted tag success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+};
+exports.TagController = TagController;
+__decorate([
+    (0, common_1.Get)('/get-all'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], TagController.prototype, "getTags", null);
+__decorate([
+    (0, common_1.Post)('/create-new-tag'),
+    __param(0, (0, common_1.Body)(new common_1.ValidationPipe())),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_b = typeof tag_dto_1.TagDto !== "undefined" && tag_dto_1.TagDto) === "function" ? _b : Object]),
+    __metadata("design:returntype", Promise)
+], TagController.prototype, "postTag", null);
+__decorate([
+    (0, common_1.Put)('/update-tag/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], TagController.prototype, "updateTag", null);
+__decorate([
+    (0, common_1.Delete)('/delete-tag/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], TagController.prototype, "deleteTag", null);
+exports.TagController = TagController = __decorate([
+    (0, common_1.Controller)('tags'),
+    __metadata("design:paramtypes", [typeof (_a = typeof tag_service_1.TagService !== "undefined" && tag_service_1.TagService) === "function" ? _a : Object])
+], TagController);
+
+
+/***/ }),
+/* 24 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TagDto = void 0;
+const mongoose_1 = __webpack_require__(12);
+const class_validator_1 = __webpack_require__(16);
+class TagDto {
+}
+exports.TagDto = TagDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], TagDto.prototype, "name", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", Number)
+], TagDto.prototype, "label", void 0);
+
+
+/***/ }),
+/* 25 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SizeController = void 0;
+const common_1 = __webpack_require__(6);
+const size_service_1 = __webpack_require__(27);
+const size_dto_1 = __webpack_require__(29);
+const globalClass_1 = __webpack_require__(17);
+const globalEnum_1 = __webpack_require__(18);
+let SizeController = class SizeController {
+    constructor(sizeService) {
+        this.sizeService = sizeService;
+    }
+    async getAllSizes() {
+        const sizes = await this.sizeService.getAllSizes();
+        return new globalClass_1.ResponseData(sizes, 'Get all sizes success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+    createNewSize(data) {
+        const newSize = this.sizeService.createNewSize(data);
+        return new globalClass_1.ResponseData(newSize, 'Create new size success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+    async updateSize(data, id) {
+        const updatedSize = await this.sizeService.updateSize(id, data);
+        if (!updatedSize)
+            return new globalClass_1.ResponseData(null, 'Size not found', globalEnum_1.HTTPSMessage.NOT_FOUND);
+        return new globalClass_1.ResponseData(updatedSize, 'Updated size success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+    async deleteSize(id) {
+        const deletedSize = await this.sizeService.deleteSize(id);
+        if (!deletedSize)
+            return new globalClass_1.ResponseData(null, 'Size not found', globalEnum_1.HTTPSMessage.NOT_FOUND);
+        return new globalClass_1.ResponseData(null, 'Deleted size success', globalEnum_1.HTTPSMessage.SUCCESS);
+    }
+};
+exports.SizeController = SizeController;
+__decorate([
+    (0, common_1.Get)('/get-all'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], SizeController.prototype, "getAllSizes", null);
+__decorate([
+    (0, common_1.Post)('/create-new-size'),
+    __param(0, (0, common_1.Body)(new common_1.ValidationPipe())),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_b = typeof size_dto_1.SizeDto !== "undefined" && size_dto_1.SizeDto) === "function" ? _b : Object]),
+    __metadata("design:returntype", void 0)
+], SizeController.prototype, "createNewSize", null);
+__decorate([
+    (0, common_1.Put)('/update-size/:id'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], SizeController.prototype, "updateSize", null);
+__decorate([
+    (0, common_1.Delete)('/delete-size/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], SizeController.prototype, "deleteSize", null);
+exports.SizeController = SizeController = __decorate([
+    (0, common_1.Controller)('sizes'),
+    __metadata("design:paramtypes", [typeof (_a = typeof size_service_1.SizeService !== "undefined" && size_service_1.SizeService) === "function" ? _a : Object])
+], SizeController);
+
+
+/***/ }),
+/* 26 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SizeModule = void 0;
+const common_1 = __webpack_require__(6);
+const size_service_1 = __webpack_require__(27);
+const mongoose_1 = __webpack_require__(12);
+const size_schema_1 = __webpack_require__(28);
+const size_controller_1 = __webpack_require__(25);
+let SizeModule = class SizeModule {
+};
+exports.SizeModule = SizeModule;
+exports.SizeModule = SizeModule = __decorate([
+    (0, common_1.Module)({
+        imports: [
+            mongoose_1.MongooseModule.forFeature([{ name: size_schema_1.Size.name, schema: size_schema_1.sizeSchema }]),
+        ],
+        providers: [size_service_1.SizeService],
+        controllers: [size_controller_1.SizeController],
+    })
+], SizeModule);
+
+
+/***/ }),
+/* 27 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SizeService = void 0;
+const common_1 = __webpack_require__(6);
+const mongoose_1 = __webpack_require__(12);
+const size_schema_1 = __webpack_require__(28);
+const mongoose_2 = __webpack_require__(13);
+let SizeService = class SizeService {
+    constructor(sizeModel) {
+        this.sizeModel = sizeModel;
+    }
+    async getAllSizes() {
+        const sizes = await this.sizeModel.find();
+        return sizes;
+    }
+    createNewSize(data) {
+        const newSize = new this.sizeModel(data);
+        return newSize.save();
+    }
+    updateSize(id, data) {
+        return this.sizeModel.findByIdAndUpdate(id, data);
+    }
+    deleteSize(id) {
+        return this.sizeModel.findByIdAndDelete(id);
+    }
+};
+exports.SizeService = SizeService;
+exports.SizeService = SizeService = __decorate([
+    (0, common_1.Injectable)(),
+    __param(0, (0, mongoose_1.InjectModel)(size_schema_1.Size.name)),
+    __metadata("design:paramtypes", [typeof (_a = typeof mongoose_2.Model !== "undefined" && mongoose_2.Model) === "function" ? _a : Object])
+], SizeService);
+
+
+/***/ }),
+/* 28 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.sizeSchema = exports.Size = void 0;
+const mongoose_1 = __webpack_require__(12);
+const class_validator_1 = __webpack_require__(16);
+let Size = class Size {
+};
+exports.Size = Size;
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], Size.prototype, "name", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], Size.prototype, "label", void 0);
+exports.Size = Size = __decorate([
+    (0, mongoose_1.Schema)({ _id: true })
+], Size);
+exports.sizeSchema = mongoose_1.SchemaFactory.createForClass(Size);
+
+
+/***/ }),
+/* 29 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SizeDto = void 0;
+const mongoose_1 = __webpack_require__(12);
+const class_validator_1 = __webpack_require__(16);
+class SizeDto {
+}
+exports.SizeDto = SizeDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], SizeDto.prototype, "name", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", Number)
+], SizeDto.prototype, "label", void 0);
 
 
 /***/ })
@@ -376,7 +1254,7 @@ exports.AppService = AppService = __decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("f5117dae0406dc02b094")
+/******/ 		__webpack_require__.h = () => ("fa90e8721897a893a030")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
